@@ -272,6 +272,10 @@ void R_TranslateNewPlayerSkin (int playernum)
 	aliashdr_t	*paliashdr;
 	int		skinnum;
 
+    if (isDedicated) {
+        return;
+    }
+
 //get correct texture pixels
 	currententity = &cl_entities[1+playernum];
 
@@ -387,12 +391,14 @@ void R_NewMap (void)
 	for (i=0 ; i<cl.worldmodel->numleafs ; i++)
 		cl.worldmodel->leafs[i].efrags = NULL;
 
+
 	r_viewleaf = NULL;
 	R_ClearParticles ();
 
 	GL_BuildLightmaps ();
 	GL_BuildBModelVertexBuffer ();
 	//ericw -- no longer load alias models into a VBO here, it's done in Mod_LoadAliasModel
+
 
 	r_framecount = 0; //johnfitz -- paranoid?
 	r_visframecount = 0; //johnfitz -- paranoid?

@@ -467,6 +467,10 @@ static void CL_FinishTimeDemo (void)
 	if (!time)
 		time = 1;
 	Con_Printf ("%i frames %5.1f seconds %5.1f fps\n", frames, time, frames/time);
+    qboolean isTesting = (COM_CheckParm("-testing") != 0);
+    if (isTesting) {
+        exit(0);
+    }
 }
 
 /*

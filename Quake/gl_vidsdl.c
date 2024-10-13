@@ -1538,9 +1538,7 @@ static void VID_FSAA_f (cvar_t *var)
 VID_InitModelist
 =================
 */
-static void VID_InitModelist (void)
-{
-#if defined(USE_SDL2)
+static void VID_InitModelist (void){
 	const int sdlmodes = SDL_GetNumDisplayModes(0);
 	int i;
 
@@ -1560,60 +1558,7 @@ static void VID_InitModelist (void)
 			nummodes++;
 		}
 	}
-#else /* !defined(USE_SDL2) */
-	SDL_PixelFormat	format;
-	SDL_Rect	**modes;
-	Uint32		flags;
-	int		i, j, k, originalnummodes, existingmode;
-	int		bpps[] = {16, 24, 32}; // enumerate >8 bpp modes
 
-	originalnummodes = nummodes = 0;
-	memset(&format, 0, sizeof(format));
-
-	// enumerate fullscreen modes
-	flags = DEFAULT_SDL_FLAGS | SDL_FULLSCREEN;
-	for (i = 0; i < (int)Q_COUNTOF(bpps); i++)
-	{
-		if (nummodes >= MAX_MODE_LIST)
-			break;
-
-		format.BitsPerPixel = bpps[i];
-		modes = SDL_ListModes(&format, flags);
-
-		if (modes == (SDL_Rect **)0 || modes == (SDL_Rect **)-1)
-			continue;
-
-		for (j = 0; modes[j]; j++)
-		{
-			if (modes[j]->w > MAXWIDTH || modes[j]->h > MAXHEIGHT || nummodes >= MAX_MODE_LIST)
-				continue;
-
-			modelist[nummodes].width = modes[j]->w;
-			modelist[nummodes].height = modes[j]->h;
-			modelist[nummodes].bpp = bpps[i];
-			modelist[nummodes].refreshrate = DEFAULT_REFRESHRATE;
-
-			for (k=originalnummodes, existingmode = 0 ; k < nummodes ; k++)
-			{
-				if ((modelist[nummodes].width == modelist[k].width)   &&
-				    (modelist[nummodes].height == modelist[k].height) &&
-				    (modelist[nummodes].bpp == modelist[k].bpp))
-				{
-					existingmode = 1;
-					break;
-				}
-			}
-
-			if (!existingmode)
-			{
-				nummodes++;
-			}
-		}
-	}
-
-	if (nummodes == originalnummodes)
-		Con_SafePrintf ("No fullscreen DIB modes found\n");
-#endif /* !defined(USE_SDL2) */
 }
 
 /*
@@ -1667,8 +1612,6 @@ void	VID_Init (void)
 
 	if (SDL_InitSubSystem(SDL_INIT_VIDEO) < 0)
 		Sys_Error("Couldn't init SDL video: %s", SDL_GetError());
-
-#if defined(USE_SDL2)
 	{
 		SDL_DisplayMode mode;
 		if (SDL_GetDesktopDisplayMode(0, &mode) != 0)
@@ -1679,15 +1622,7 @@ void	VID_Init (void)
 		display_refreshrate = mode.refresh_rate;
 		display_bpp = SDL_BITSPERPIXEL(mode.format);
 	}
-#else
-	{
-		const SDL_VideoInfo *info = SDL_GetVideoInfo();
-		display_width = info->current_w;
-		display_height = info->current_h;
-		display_refreshrate = DEFAULT_REFRESHRATE;
-		display_bpp = info->vfmt->BitsPerPixel;
-	}
-#endif
+
 
 	Cvar_SetValueQuick (&vid_bpp, (float)display_bpp);
 

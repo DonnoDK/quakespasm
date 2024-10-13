@@ -209,12 +209,6 @@ void IN_Activate (void)
 	if (no_mouse)
 		return;
 
-#ifdef MACOS_X_ACCELERATION_HACK
-	/* Save the status of mouse acceleration */
-	if (originalMouseSpeed == -1 && in_disablemacosxmouseaccel.value)
-		IN_DisableOSXMouseAccel();
-#endif
-
 #if defined(USE_SDL2)
 #ifdef __APPLE__
 	{
@@ -357,26 +351,16 @@ void IN_Init (void)
 {
 	textmode = Key_TextEntry();
 
-#if !defined(USE_SDL2)
-	SDL_EnableUNICODE (textmode);
-	if (SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL) == -1)
-		Con_Printf("Warning: SDL_EnableKeyRepeat() failed.\n");
-#else
 	if (textmode)
 		SDL_StartTextInput();
 	else
 		SDL_StopTextInput();
-#endif
 	if (safemode || COM_CheckParm("-nomouse"))
 	{
 		no_mouse = true;
 		/* discard all mouse events when input is deactivated */
 		IN_BeginIgnoringMouseEvents();
 	}
-
-#ifdef MACOS_X_ACCELERATION_HACK
-	Cvar_RegisterVariable(&in_disablemacosxmouseaccel);
-#endif
 	Cvar_RegisterVariable(&in_debugkeys);
 	Cvar_RegisterVariable(&joy_sensitivity_yaw);
 	Cvar_RegisterVariable(&joy_sensitivity_pitch);

@@ -688,10 +688,12 @@ void _Host_Frame (float time)
 
 // keep the random time dependent
 	rand ();
+        
 
 // decide the simulation time
 	if (!Host_FilterTime (time))
 		return;			// don't run too fast, or packets will flood out
+
 
 // get new key events
 	Key_UpdateForDest ();
@@ -736,12 +738,13 @@ void _Host_Frame (float time)
 // fetch results from server
 	if (cls.state == ca_connected)
 		CL_ReadFromServer ();
-
 // update video
 	if (host_speeds.value)
 		time1 = Sys_DoubleTime ();
 
 	SCR_UpdateScreen ();
+    
+        
 
 	CL_RunParticles (); //johnfitz -- seperated from rendering
 
@@ -760,6 +763,7 @@ void _Host_Frame (float time)
 
 	CDAudio_Update();
 
+
 	if (host_speeds.value)
 	{
 		pass1 = (time1 - time3)*1000;
@@ -770,7 +774,7 @@ void _Host_Frame (float time)
 					pass1+pass2+pass3, pass1, pass2, pass3);
 	}
 
-	host_framecount++;
+	host_framecount++;        
 
 }
 
@@ -851,19 +855,20 @@ void Host_Init (void)
 
 	Con_Printf ("Exe: " __TIME__ " " __DATE__ "\n");
 	Con_Printf ("%4.1f megabyte heap\n", host_parms->memsize/ (1024*1024.0));
-
+    
+    V_Init ();
 	if (cls.state != ca_dedicated)
 	{
 		host_colormap = (byte *)COM_LoadHunkFile ("gfx/colormap.lmp", NULL);
 		if (!host_colormap)
 			Sys_Error ("Couldn't load gfx/colormap.lmp");
 
-		V_Init ();
+
 		Chase_Init ();
 		M_Init ();
 		ExtraMaps_Init (); //johnfitz
+        DemoList_Init (); //ericw
 		Modlist_Init (); //johnfitz
-		DemoList_Init (); //ericw
 		VID_Init ();
 		IN_Init ();
 		TexMgr_Init (); //johnfitz
@@ -874,8 +879,9 @@ void Host_Init (void)
 		CDAudio_Init ();
 		BGM_Init();
 		Sbar_Init ();
-		CL_Init ();
+
 	}
+    CL_Init ();	
 
 	LOC_Init (); // for 2021 rerelease support.
 
@@ -893,13 +899,20 @@ void Host_Init (void)
 		Cbuf_AddText ("\n\nvid_unlock\n");
 	}
 
+    qboolean isTesting = (COM_CheckParm("-testing") != 0);
+
 	if (cls.state == ca_dedicated)
 	{
 		Cbuf_AddText ("exec autoexec.cfg\n");
 		Cbuf_AddText ("stuffcmds");
 		Cbuf_Execute ();
-		if (!sv.active)
-			Cbuf_AddText ("map start\n");
+		if (!sv.active) {
+            if(isTesting) {
+                Cbuf_AddText("timedemo e1m4_205");
+            }else{
+                Cbuf_AddText ("map start\n");
+            }
+        }
 	}
 }
 

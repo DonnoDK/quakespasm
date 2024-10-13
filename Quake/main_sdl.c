@@ -113,12 +113,14 @@ int main(int argc, char *argv[])
 			newtime = Sys_DoubleTime ();
 			time = newtime - oldtime;
 
-			while (time < sys_ticrate.value )
-			{
-				SDL_Delay(1);
-				newtime = Sys_DoubleTime ();
-				time = newtime - oldtime;
-			}
+            if (!cls.timedemo) {
+                while (time < sys_ticrate.value )
+                {
+                    SDL_Delay(1);
+                    newtime = Sys_DoubleTime ();
+                    time = newtime - oldtime;
+                }
+            }
 
 			Host_Frame (time);
 			oldtime = newtime;

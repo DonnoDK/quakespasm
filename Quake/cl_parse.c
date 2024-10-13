@@ -288,6 +288,7 @@ void CL_ParseServerInfo (void)
 	char	model_precache[MAX_MODELS][MAX_QPATH];
 	char	sound_precache[MAX_SOUNDS][MAX_QPATH];
 
+
 	Con_DPrintf ("Serverinfo packet received.\n");
 
 // ericw -- bring up loading plaque for map changes within a demo.
@@ -384,6 +385,7 @@ void CL_ParseServerInfo (void)
 		q_strlcpy (sound_precache[numsounds], str, MAX_QPATH);
 		S_TouchSound (str);
 	}
+    
 
 	//johnfitz -- check for excessive sounds
 	if (numsounds >= 256)
@@ -415,10 +417,13 @@ void CL_ParseServerInfo (void)
 	}
 	S_EndPrecaching ();
 
+
 // local state
 	cl_entities[0].model = cl.worldmodel = cl.model_precache[1];
 
-	R_NewMap ();
+    if (!isDedicated){
+        R_NewMap ();    
+    }
 
 	//johnfitz -- clear out string; we don't consider identical
 	//messages to be duplicates if the map has changed in between
@@ -435,6 +440,7 @@ void CL_ParseServerInfo (void)
 	memset(&dev_stats, 0, sizeof(dev_stats));
 	memset(&dev_peakstats, 0, sizeof(dev_peakstats));
 	memset(&dev_overflows, 0, sizeof(dev_overflows));
+        
 }
 
 /*
@@ -700,7 +706,6 @@ void CL_ParseClientdata (void)
 {
 	int		i, j;
 	int		bits; //johnfitz
-
 	bits = (unsigned short)MSG_ReadShort (); //johnfitz -- read bits here isntead of in CL_ParseServerMessage()
 
 	//johnfitz -- PROTOCOL_FITZQUAKE
@@ -854,7 +859,7 @@ void CL_ParseClientdata (void)
 	{
 		cl.viewent.lerpflags |= LERP_RESETANIM; //don't lerp animation across model changes
 	}
-	//johnfitz
+	//johnfitz        
 }
 
 /*
@@ -1067,7 +1072,7 @@ void CL_ParseServerMessage (void)
 			break;
 
 		case svc_clientdata:
-			CL_ParseClientdata (); //johnfitz -- removed bits parameter, we will read this inside CL_ParseClientdata()
+			CL_ParseClientdata (); //johnfitz -- removed bits parameter, we will read this inside CL_ParseClientdata()                        
 			break;
 
 		case svc_version:
@@ -1170,7 +1175,9 @@ void CL_ParseServerMessage (void)
 			if (i >= cl.maxclients)
 				Host_Error ("CL_ParseServerMessage: svc_updatecolors > MAX_SCOREBOARD");
 			cl.scores[i].colors = MSG_ReadByte ();
-			CL_NewTranslation (i);
+            if (!isDedicated) {
+                CL_NewTranslation (i);
+            }
 			break;
 
 		case svc_particle:
@@ -1323,6 +1330,7 @@ void CL_ParseServerMessage (void)
 		}
 
 		lastcmd = cmd; //johnfitz
+
 	}
 }
 

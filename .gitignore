@@ -5,3 +5,8 @@
 **/*.cfg
 **/history.txt
 **/quakespasm
+
+GPATH
+GRTAGS
+GTAGS
+id1

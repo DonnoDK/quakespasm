@@ -112,15 +112,9 @@ static void ExtraMaps_Add (const char *name)
 	FileList_Add(name, &extralevels);
 }
 
-void ExtraMaps_Init (void)
-{
-#ifdef _WIN32
-	WIN32_FIND_DATA	fdat;
-	HANDLE		fhnd;
-#else
+void ExtraMaps_Init (void){
 	DIR		*dir_p;
 	struct dirent	*dir_t;
-#endif
 	char		filestring[MAX_OSPATH];
 	char		mapname[32];
 	char		ignorepakdir[32];
@@ -136,18 +130,7 @@ void ExtraMaps_Init (void)
 	{
 		if (*search->filename) //directory
 		{
-#ifdef _WIN32
-			q_snprintf (filestring, sizeof(filestring), "%s/maps/*.bsp", search->filename);
-			fhnd = FindFirstFile(filestring, &fdat);
-			if (fhnd == INVALID_HANDLE_VALUE)
-				continue;
-			do
-			{
-				COM_StripExtension(fdat.cFileName, mapname, sizeof(mapname));
-				ExtraMaps_Add (mapname);
-			} while (FindNextFile(fhnd, &fdat));
-			FindClose(fhnd);
-#else
+
 			q_snprintf (filestring, sizeof(filestring), "%s/maps/", search->filename);
 			dir_p = opendir(filestring);
 			if (dir_p == NULL)
@@ -160,7 +143,6 @@ void ExtraMaps_Init (void)
 				ExtraMaps_Add (mapname);
 			}
 			closedir(dir_p);
-#endif
 		}
 		else //pakfile
 		{
@@ -323,18 +305,6 @@ void DemoList_Init (void)
 	{
 		if (*search->filename) //directory
 		{
-#ifdef _WIN32
-			q_snprintf (filestring, sizeof(filestring), "%s/*.dem", search->filename);
-			fhnd = FindFirstFile(filestring, &fdat);
-			if (fhnd == INVALID_HANDLE_VALUE)
-				continue;
-			do
-			{
-				COM_StripExtension(fdat.cFileName, demname, sizeof(demname));
-				FileList_Add (demname, &demolist);
-			} while (FindNextFile(fhnd, &fdat));
-			FindClose(fhnd);
-#else
 			q_snprintf (filestring, sizeof(filestring), "%s/", search->filename);
 			dir_p = opendir(filestring);
 			if (dir_p == NULL)
@@ -347,10 +317,8 @@ void DemoList_Init (void)
 				FileList_Add (demname, &demolist);
 			}
 			closedir(dir_p);
-#endif
-		}
-		else //pakfile
-		{
+		}else //pakfile
+        {
 			if (!strstr(search->pack->filename, ignorepakdir))
 			{ //don't list standard id demos
 				for (i = 0, pak = search->pack; i < pak->numfiles; i++)
