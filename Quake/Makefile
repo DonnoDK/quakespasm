@@ -8,7 +8,7 @@
 DO_USERDIRS=0
 
 ### Enable/Disable SDL2
-USE_SDL2=0
+USE_SDL2=2
 
 ### Enable/Disable codecs for streaming music support
 USE_CODEC_WAVE=1
@@ -43,7 +43,7 @@ DEBUG ?= 0
 # build variables
 # ---------------------------
 
-CC ?= gcc
+CC = clang++
 LINKER = $(CC)
 
 STRIP ?= strip
@@ -52,7 +52,7 @@ PKG_CONFIG ?= pkg-config
 CPUFLAGS=
 LDFLAGS?=
 DFLAGS ?=
-CFLAGS ?= -Wall -Wno-trigraphs -MMD
+CFLAGS ?= -Wall -Wno-trigraphs -MMD -std=c++20
 #CFLAGS += $(call check_gcc,-std=gnu11,)
 CFLAGS += $(CPUFLAGS)
 ifneq ($(DEBUG),0)
@@ -269,7 +269,7 @@ DEFAULT_TARGET = quakespasm
 all: $(DEFAULT_TARGET)
 
 %.o:	%.c
-	$(CC) $(DFLAGS) -c $(CFLAGS) $(SDL_CFLAGS) -o $@ $<
+	@$(CC) $(DFLAGS) -c $(CFLAGS) $(SDL_CFLAGS) -o $@ $<
 
 quakespasm:	$(OBJS)
 	$(LINKER) $(OBJS) $(LDFLAGS) $(LIBS) $(SDL_LIBS) -o $@
